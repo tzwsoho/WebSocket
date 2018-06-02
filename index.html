@@ -1,0 +1,45 @@
+﻿<html>
+<head><title>WebSocket</title></head>
+
+<body>
+	<button id="sendBtn">发送消息</button>
+	<button id="leaveBtn">离开</button><br>
+	<label>接收到的消息</label><textarea id="recv" cols=100 readonly="readonly"></textarea><br>
+	<label>要发送的消息</label><textarea id="chat" rows=10 cols=100></textarea>
+</body>
+
+<script type="text/javascript">
+	const socket = new WebSocket('ws://localhost:8080');
+	const send = document.getElementById('sendBtn');
+	const leave = document.getElementById('leaveBtn');
+	const chat = document.getElementById('chat');
+	const recv = document.getElementById('recv');
+
+	// 发送消息
+	send.onclick = function () {
+		socket.send(chat.value);
+	};
+
+	// 关闭网页
+	leave.onclick = function () {
+		socket.send('Leaving!!!');
+		socket.close();
+
+		window.opener = null;
+		window.close();
+	};
+
+	// 已连接服务器
+	socket.onopen = function (event) {
+		socket.onmessage = function (event) {
+			// console.dir(event);
+			recv.value = event.data;
+		};
+
+		socket.onclose = function (event) {
+			console.log('服务器已关闭: ', event.reason);
+			recv.value = '服务器已关闭';
+		};
+	};
+</script>
+</html>
